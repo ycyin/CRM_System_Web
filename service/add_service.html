@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div style="padding:10px 60px 20px 60px;margin: auto;width: 480px;">
+    <form id="frmAddService" method="post">
+        <table cellpadding="5">
+            <tr>
+
+                <td>服务类型:</td>
+                <td>
+                    <select id="cusNo" class="easyui-combobox" name="svType" data-options="required:true,width:173,panelHeight:250">
+
+                        <option value="咨询">咨询</option>
+                        <option value="投诉">投诉</option>
+                        <option value="建议">建议</option>
+                        <option value="人工客服">人工客服</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>内容:</td>
+                <td><input class="easyui-textbox" type="number" name="svContent" data-options="multiline:true,required:true" style="height:60px"></input>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitAddService()">新增</a>
+                </td>
+                <td>
+                    <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearSubmitAddService()">取消</a>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<script>
+    function submitAddService() {
+        var isValid = $('#frmAddService').form('validate');
+        var fields = $('#frmAddService').serializeArray();
+        var objs = {}; //声明一个对象
+        objs.id = 10001; //后端要求每次请求传入一个ID
+        var obj = {}; //声明一个对象
+        $.each(fields, function(index, field) {
+            obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+        })
+        var datas = [];
+        datas.push(obj)
+        objs.data = datas;//data是一个数组（集合）哦
+
+        if(isValid) {
+            $.ajax({
+                type: "post",
+                url: "http://127.0.0.1:8080/home/serviceService/addService",
+                async: true,
+                xhrFields: {
+						withCredentials: true
+				},
+                contentType: 'application/json',
+                dataType: 'JSON',
+                data: JSON.stringify(objs),
+                success: function(obj) {
+                    if(obj.status === 200) {
+							layer.msg(obj.desc);
+						} else {
+							layer.msg(obj.desc, {
+								icon: 7,
+								anim: 6,
+								time: 3000
+							});
+						}
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

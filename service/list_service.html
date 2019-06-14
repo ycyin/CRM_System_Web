@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table id="TabDg_ser" class="easyui-datagrid" style="width:100%;height: 525px;"></table>
+<script>
+    var InitCustomerTableLoader = function(param, success, error) {
+        var objs = {}; //声明一个对象
+        objs.id = 10001; //后端要求每次请求传入一个ID
+
+//			var datas = [];
+//			var obj = {}; //声明一个对象
+//			obj.page = param.page;
+//			obj.size = param.rows;
+//			datas.push(obj)
+//			objs.data = datas; //data是一个数组（集合）哦
+        objs.page = param.page;
+        objs.size = param.rows;
+
+        $.ajax({
+            type: "post",
+            url: "http://127.0.0.1:8080/home/serviceService/getAllServiceWithPage",
+            async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+            contentType: 'application/json',
+            dataType: 'JSON',
+             xhrFields: {
+						withCredentials: true
+				},
+            data: JSON.stringify(objs),
+            success: function(obj) {
+                if(obj.status === 200) {
+						success(obj.data); //调用这个方法就刷新表格数据
+					} else {
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+						success(null); //调用这个方法就刷新表格数据
+					}
+            }
+        });
+    }
+    $('#TabDg_ser').datagrid({ //表格的初始化
+        data: '', //初始化为空，请求成功后数据加载（这里使用ajax加载数据）
+        loader: InitCustomerTableLoader,
+        striped: true, //行条纹化，即奇偶行使用不同背景色
+        pagination: true, //分页工具栏
+        pageSize: 15, //当设置了 pagination 属性时，初始化页面尺寸。
+        pageList: [15, 30, 45, 60], //当设置了 pagination 属性时，初始化页面尺寸的选择列表
+        rownumbers: true,
+        fitColumns: true,
+        singleSelect: false,
+        // toolbar: [{
+        //     iconCls: 'icon-edit',
+        //     text: '编辑',
+        //     handler: function() {
+        //         var selectData = $('#TabDg_cus').datagrid('getChecked');
+        //         //var row = $('#TabDg_cus').datagrid('getSelected');//可以用getSelected直接取到行数据也可以getChecked然后取selectData[0]
+        //         var checkLen = selectData.length;
+        //         if(checkLen === 0) {
+        //             SimpleMsg('请选择要编辑的行！');
+        //         } else if(checkLen > 1) {
+        //             MsgWithIcon_Anim('每一次只能编辑一行~',4,6);
+        //         } else {
+        //             $('#star1').raty({ //评分插件初始化,需要在这里初始化，否则评分插件的值不能正常显示
+        //                 score: selectData[0].score,
+        //                 size: 30,
+        //                 path: 'raty/img',
+        //                 cancel: true,
+        //                 cancelPlace: 'right'
+        //             });
+        //
+        //             $('#frmCus').form('load', selectData[0]); //加载选中行的数据到表单标签
+        //             $('#modifyCus').window('open'); // 打开window窗口
+        //         }
+        //     }
+        // }, '-', {
+        //     iconCls: 'icon-clear',
+        //     text: '删除',
+        //     handler: function() {
+        //         var selectData = $('#TabDg_cus').datagrid('getChecked');
+        //         var checkLen = selectData.length;
+        //         if(checkLen > 0) {
+        //             layer.confirm('确定要删除选中的' + checkLen + '条数据吗?', {
+        //                 icon: 3,
+        //                 title: '提示'
+        //             }, function(index) {
+        //                 var obj = {}; //声明一个对象
+        //                 obj.id = 10001; //后端要求每次请求传入一个ID
+        //                 obj.data = selectData;
+        //                 $.ajax({
+        //                     type: "post",
+        //                     url: "http://127.0.0.1:8080/home/customerService/deleteCustomer",
+        //                     async: true,
+        //                     contentType: 'application/json',
+        //                     dataType: 'JSON',
+        //                     data: JSON.stringify(obj),
+        //                     success: function(obj) {
+        //                         $('#searchContact').window('close'); // 关闭window窗口
+        //                         if(obj.data != null) { //删除成功，返回的是删除的记录数
+        //                             layer.msg(obj.desc + ",共删除" + obj.data + "条数据！", {
+        //                                 titile: '删除提示',
+        //                                 icon: 1,
+        //                                 time: 2000 //2秒关闭（如果不配置，默认是3秒）
+        //                             });
+        //                             $('#TabDg_cus').datagrid('reload'); //刷新表格
+        //                         } else {
+        //                             layer.msg(obj.desc, {
+        //                                 titile: '删除提示',
+        //                                 icon: 5,
+        //                                 time: 3000,
+        //                                 anim: 6
+        //                             });
+        //                         }
+        //                         //$.messager.alert('删除提示', obj.desc + ",共删除" + obj.data + "条数据！");
+        //
+        //                     }
+        //                 });
+        //
+        //                 layer.close(index);
+        //             });
+        //
+        //         } else {
+        //             layer.msg('请选择要删除的行！');
+        //         }
+        //
+        //     }
+        // }, '-', {
+        //     iconCls: 'icon-man',
+        //     text: '查看联系人',
+        //     handler: function() {
+        //         var selectData = $('#TabDg_cus').datagrid('getChecked');
+        //         //					var row = $('#TabDg_cus').datagrid('getSelected');//可以用getSelected直接取到行数据也可以getChecked然后取selectData[0]
+        //         var checkLen = selectData.length;
+        //         if(checkLen === 0) {
+        //             $.messager.alert('查询联系人提示', '请选择要查询的客户！');
+        //         } else if(checkLen > 1) {
+        //             $.messager.alert('查询联系人提示', '每一次只能查询一个客户的联系人哦！');
+        //         } else {
+        //             var data = {}; //声明一个对象
+        //             data.id = 10001; //后端要求每次请求传入一个ID
+        //             data.data = selectData;
+        //
+        //             $.ajax({
+        //                 type: "post",
+        //                 url: "http://127.0.0.1:8080/home/contactService/getContactByCusNo",
+        //                 async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+        //                 contentType: 'application/json',
+        //                 dataType: 'JSON',
+        //                 data: JSON.stringify(data),
+        //                 success: function(obj) {
+        //                     if(obj.data.length === 0) {
+        //                         $.messager.confirm('查询提示', '【' + data.data[0].cusName + '】下无客户联系人！是否去添加？',
+        //                             function(r) {
+        //                                 if(r) {
+        //                                     var tab = $('#tt').tabs('getTab', '新增客户联系人');
+        //                                     if(tab == null) {
+        //                                         $('#tt').tabs('add', {
+        //                                             title: '新增客户联系人',
+        //                                             href: 'cus_mang/add_contact.html',
+        //                                             closable: true
+        //                                         });
+        //                                     } else {
+        //                                         $('#tt').tabs('select', '新增客户联系人');
+        //                                     }
+        //                                 }
+        //                             });
+        //                     } else {
+        //                         $('#searchContact').panel({
+        //                             title: '客户联系人☞【' + data.data[0].cusName + '】',
+        //                         });
+        //                         InitContactTable(obj.data);
+        //                         $('#searchContact').window('open'); // 打开window窗口
+        //                     }
+        //
+        //                 }
+        //             });
+        //         }
+        //     }
+        // }],
+        columns: [
+            [{
+                field: '',
+                title: '',
+                width: 100,
+                align: 'center',
+                checkbox: true //一般要同时设置singleSelect：false
+            },
+
+                {
+                    field: 'svType',
+                    title: '服务类型',
+                    width: 80,
+                    align: 'center'
+                },
+                {
+                    field: 'svContent',
+                    title: '客户名称',
+                    width: 101,
+                    align: 'center'
+                },
+                {
+                    field: 'svDate',
+                    title: '时间',
+                    width: 101,
+                    align: 'center'
+                },
+            ]
+        ]
+    });
+</script>
+</body>
+</html>

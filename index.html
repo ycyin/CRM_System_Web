@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<!--
+        	作者：yinyicao@foxmail.com
+        	时间：2019-05-28
+        	描述：公共引用
+        -->
+		<script type="text/javascript" src="jquery-easyui-1.7.0/jquery.min.js"></script>
+		<!--
+        	作者：yinyicao@foxmail.com
+        	时间：2019-05-28
+        	描述：easyui-支持
+        -->
+		<!--<link rel="stylesheet" type="text/css" href="jquery-easyui-1.7.0/themes/default/easyui.css">-->
+		<link rel="stylesheet" type="text/css" href="jquery-easyui-1.7.0/themes/bootstrap/easyui.css">
+		<link rel="stylesheet" type="text/css" href="jquery-easyui-1.7.0/themes/icon.css">
+		<script type="text/javascript" src="jquery-easyui-1.7.0/jquery.easyui.min.js"></script>
+		<script src="jquery-easyui-1.7.0/locale/easyui-lang-zh_CN.js" type="text/javascript" charset="utf-8"></script>
+
+		<!--
+			作者：yinyicao@foxmail.com
+			时间：2019-06-04
+			描述：easyui主题
+		-->
+
+		<!--
+			作者：yinyicao@foxmail.com
+			时间：2019-05-28
+			描述：jquery-raty评分插件
+		-->
+		<script src="raty/jquery.raty.js"></script>
+
+		<!--
+        	作者：yinyicao@foxmail.com
+        	时间：2019-06-05
+        	描述：echarts
+        -->
+		<script type="application/javascript" src="js/echarts.js"></script>
+
+		<!--
+        	作者：yinyicao@foxmail.com
+        	时间：2019-06-10
+        	描述：layer弹层控件和自定义封装的提示方法
+        -->
+		<script src="layer/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/myTips.js" type="text/javascript" charset="utf-8"></script>
+
+		<style type="text/css">
+			#head {
+				background-color: #e7f0ff;
+				background-image: url(img/logo.png);
+				background-repeat: no-repeat;
+				background-size: contain;
+				width: 100%;
+				height: 100%;
+				color: #870101;
+				font-size: 2.5em;
+				text-align: center;
+				line-height: inherit;
+			}
+			/*好看的滚动条*/
+			
+			::-webkit-scrollbar {
+				width: 10px!important;
+				height: 10px!important;
+				-webkit-appearance: none;
+			}
+			
+			::-webkit-scrollbar-thumb {
+				height: 5px;
+				border: 1px solid transparent;
+				border-top: none;
+				border-bottom: none;
+				-webkit-border-radius: 6px;
+				background-color: rgba(0, 0, 0, .3);
+				background-clip: padding-box;
+			}
+			
+			.mypanel {
+				display: inline-block;
+				float: left;
+				margin: 20px 20px 0px 0px;
+			}
+			
+			.mypanel div img {
+				width: 100%;
+				height: auto;
+			}
+			
+			#logout {
+				height: 100%;
+				width: 100px;
+				font-size: 15px;
+				position: absolute;
+				right: 0px;
+				top: 10px;
+			}
+			
+			#logout a,
+			#logout a:link,
+			#logout a:visited,
+			#logout a:hover #logout a:active {
+				cursor: pointer;
+				text-decoration: none;
+			}
+			
+			#logout a:hover {
+				color: #515151;
+			}
+		</style>
+	</head>
+
+	<body class="easyui-layout" data-options="fit:true">
+
+		<div data-options="region:'north',split:false" style="height:60px;">
+
+			<div id="head">
+				客户关系管理系统
+				<div id="logout">
+					<a onclick="logout()">退出登录</a>
+				</div>
+
+			</div>
+			<div id="logo" style="height: 60px;width: 300px;float: left;position: fixed;left: 0;top: 0; cursor:pointer;"></div>
+		</div>
+		<div data-options="region:'west',title:'菜单',split:false" style="width:300px;">
+			<div id="sm" class="easyui-sidemenu" data-options="border:false,width:298,data:data"></div>
+		</div>
+		<div data-options="region:'center'" style="padding:5px;background:#eee;">
+			<div id="tt" class="easyui-tabs" style="width:100%;height:100%;">
+				<div title="主页" data-options="closable:false,tabWidth:80" style="padding:20px;">
+
+					<div class="easyui-panel" title="VIP客户" style="width:990px;height:225px;padding:10px;padding-top:-10px;background:#fafafa;" data-options="collapsible:true">
+						<div class="mypanel">
+							<div class="easyui-panel" style="width:150px;height:150px;padding:10px;background:#fafafa;">
+								<img src="img/littlelogo.png" />
+							</div>
+						</div>
+						<div class="mypanel">
+
+							<div class="easyui-panel" style="width:150px;height:150px;padding:10px;background:#fafafa;">
+								<img src="img/littlelogo.png" />
+							</div>
+						</div>
+						<div class="mypanel">
+							<div class="easyui-panel" style="width:150px;height:150px;padding:10px;background:#fafafa;">
+								<img src="img/littlelogo.png" />
+							</div>
+						</div>
+						<div class="mypanel">
+							<div class="easyui-panel" style="width:150px;height:150px;padding:10px;background:#fafafa;">
+								<img src="img/littlelogo.png" />
+							</div>
+						</div>
+						<div class="mypanel">
+							<div class="easyui-panel" style="width:150px;height:150px;padding:10px;background:#fafafa;">
+								<img src="img/littlelogo.png" />
+							</div>
+						</div>
+					</div>
+					<div style="display: inline-block;float: left;padding-top: 20px;">
+						<div class="easyui-panel" title="友情链接" style="width:485px;height:200px;padding:10px;background:#fafafa;" data-options="collapsible:true">
+
+						</div>
+					</div>
+					<div style="display: inline-block;float: left;padding-top: 20px;padding-left: 20px;">
+						<div class="easyui-panel" title="网站消息" style="width:485px;height:200px;padding:10px;background:#fafafa;" data-options="collapsible:true">
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript">
+		//左上角logo点击事件
+		$('#logo').click(function() {
+			$('#tt').tabs('select', '主页');
+		})
+
+		var data = [{
+			text: '客户管理',
+			iconCls: 'icon-more',
+			state: 'open',
+			children: [{
+				text: '新增客户',
+				href: 'cus_mang/add_customer.html',
+			}, {
+				text: '查询客户',
+				href: 'cus_mang/list_customer.html',
+			}, {
+				text: '新增客户联系人',
+				href: 'cus_mang/add_contact.html',
+			}]
+		}, {
+			text: '统计图表',
+			iconCls: 'icon-more',
+			children: [{
+				text: '客户区域分布图',
+				href: 'report/customerregion.html',
+			}, {
+				text: '客户分析构成图',
+				href: 'report/customerType.html',
+			
+			}]
+		}
+//		,{
+//			text: '用户管理',
+//			iconCls: 'icon-more',
+//			children: [{
+//				text: '新增用户'
+//			}, {
+//				text: '修改用户'
+//			}]
+//		}
+		,{
+			text: '订单管理',
+			iconCls: 'icon-more',
+			children: [{
+				text: '新增销售订单',
+				href: 'cus_mang/add_SaleOrder.html',
+			}]
+		},{
+			text: '服务管理',
+			iconCls: 'icon-more',
+			children: [{
+				text: '服务创建',
+				href:'service/add_service.html'
+			},{
+                text: '服务列表',
+                href:'service/list_service.html'
+            },{
+	            text: '客户服务分析构成图',
+	            href:'service/CustomerServiceAnalysis.html'
+	        }]
+		}];
+
+		$("#sm").sidemenu({
+			onSelect: function(item) {
+				var tab = $('#tt').tabs('getTab', item.text);
+				if(tab == null) {
+					$('#tt').tabs('add', {
+						title: item.text,
+						href: item.href,
+						closable: true
+					});
+				} else {
+					$('#tt').tabs('select', item.text);
+				}
+			}
+		})
+	</script>
+	<!--
+    	作者：yinyicao@foxmail.com
+    	时间：2019-06-11
+    	描述：不断地请求后台，验证是否登录
+    -->
+	<script type="text/javascript">
+		$().ready(function() {
+			// 右上角退出登录
+			var tipIndex;
+			$("#logout a").hover(function() {
+				tipIndex = layer.tips('注销登录系统', '#logout a');
+			}, function() {
+				layer.close(tipIndex);
+			});
+			$("#logout a").click(function() {
+				layer.close(tipIndex);
+			});
+			
+
+			// 请求验证是否登录
+			flush(true)
+			setInterval(function() {
+				flush(false)
+			}, 1000 * 60 * 10); //10分钟
+		})
+
+		function flush(isFirstRequest) {
+			$.ajax({
+				type: "get",
+				url: "http://127.0.0.1:8080/checkLogin",
+				xhrFields: {
+					withCredentials: true
+				},
+				async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+				dataType: 'JSON',
+				success: function(obj) {
+					console.log(obj)
+					if(obj.status === 2002) {
+						if(isFirstRequest) {
+							layer.msg("您还未登录！", {
+								time: 500
+							}, function() {
+								window.location.href = "login.html"
+							});
+						} else {
+							layer.msg("会话已过期,请重新登录！", {
+								time: 5000
+							}, function() {
+								window.location.href = "login.html"
+							});
+						}
+
+					}
+				}
+			});
+		}
+
+		function logout() {
+			$.ajax({
+				type: "get",
+				url: "http://127.0.0.1:8080/logout",
+				xhrFields: {
+					withCredentials: true
+				},
+				async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+				dataType: 'JSON',
+				success: function(obj) {
+					if(obj.status == 2002) {
+						layer.msg("退出登录成功！", {
+							time: 1000
+						}, function() {
+							window.location.href = "login.html"
+						});
+					}
+				}
+			});
+
+		}
+	</script>
+
+</html>

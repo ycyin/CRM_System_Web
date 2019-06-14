@@ -1,0 +1,157 @@
+<style type="text/css">
+	/*新增/修改用户时，是否管理员样式保持与easyui一致*/
+	
+	.radioSpan {
+		position: relative;
+		border: 1px solid #95B8E7;
+		background-color: #fff;
+		vertical-align: middle;
+		display: inline-block;
+		overflow: hidden;
+		white-space: nowrap;
+		margin: 0;
+		padding: 0;
+		-moz-border-radius: 5px 5px 5px 5px;
+		-webkit-border-radius: 5px 5px 5px 5px;
+		border-radius: 5px 5px 5px 5px;
+		display: block;
+	}
+</style>
+<div>
+	<div style="padding:10px 60px 20px 60px;margin: auto;width: 480px;">
+		<form id="frmAddCont" method="post">
+			<table cellpadding="5">
+				<tr>
+
+					<td>所属客户:</td>
+					<td>
+						<select id="cusNo" class="easyui-combobox" name="cusNo" data-options="required:true,width:173,panelHeight:250">
+							<option value=""></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>联系人姓名:</td>
+					<td><input class="easyui-textbox" type="text" name="ctName" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>联系人职位:</td>
+					<td><input class="easyui-textbox" type="text" name="ctTitle" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>联系人性别:</td>
+					<td>
+						<span class="radioSpan" style="height:30px">
+                		<label style="line-height: 30px;"><input type="radio" name="ctGender" value="男" checked >男</input></label>
+                		&nbsp;&nbsp;&nbsp;&nbsp;
+                		<label style="line-height: 30px;"><input type="radio" name="ctGender" value="女">女</input></label>
+            		</span>
+
+				</tr>
+				<tr>
+					<td>联系人电话:</td>
+					<td><input class="easyui-textbox" type="number" name="ctPhone" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>联系人备注:</td>
+					<td><input class="easyui-textbox" type="number" name="ctMemo" data-options="multiline:true,required:true" style="height:60px"></input>
+					</td>
+				</tr>
+
+				<tr>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitAddContact()">新增</a>
+					</td>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearSubmitAddContact()">取消</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<script type="text/javascript">
+		var getCusNoLoader = function(param, success, error) {
+
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID	
+			$.ajax({
+				type: "post",
+				url: "http://127.0.0.1:8080/home/customerService/getCusNo",
+				async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+				contentType: 'application/json',
+				xhrFields: {
+					withCredentials: true
+				},
+				dataType: 'JSON',
+				data: JSON.stringify(obj),
+				success: function(obj) {
+					if(obj.status === 200) {
+						success(obj.data); //调用这个方法就刷新表格数据
+					} else { //无权限
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+//						success(null); //调用这个方法就刷新表格数据
+					}
+
+				}
+			});
+		}
+
+		//【客户】下拉列表初始化
+		$('#cusNo').combobox({
+			valueField: 'cusNo',
+			textField: 'cusName',
+			loader: getCusNoLoader
+		});
+
+		function submitAddContact() {
+			var isValid = $('#frmAddCont').form('validate');
+			var fields = $('#frmAddCont').serializeArray();
+			var objs = {}; //声明一个对象
+			objs.id = 10001; //后端要求每次请求传入一个ID
+			var obj = {}; //声明一个对象
+			$.each(fields, function(index, field) {
+				obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+			})
+			var datas = [];
+			datas.push(obj)
+			objs.data = datas; //data是一个数组（集合）哦
+
+			if(isValid) {
+				$.ajax({
+					type: "post",
+					url: "http://127.0.0.1:8080/home/contactService/addContact",
+					async: true,
+					xhrFields: {
+						withCredentials: true
+					},
+					contentType: 'application/json',
+					dataType: 'JSON',
+					data: JSON.stringify(objs),
+					success: function(obj) {
+
+						if(obj.status === 200) {
+							$.messager.alert('添加提示', obj.desc);
+						} else { //无权限
+							layer.msg(obj.desc, {
+								icon: 7,
+								anim: 6,
+								time: 3000
+							});
+						}
+					}
+				});
+			}
+		}
+
+		function clearSubmitAddContact() {
+			$('#frmAddCont')[0].reset(); //清除form表单的输入内容
+		}
+	</script>
+</div>

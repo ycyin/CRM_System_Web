@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>客户关系管理系统</title>
+		<link href="css/base.css" rel="stylesheet">
+		<link href="css/login/login.css" rel="stylesheet">
+
+	</head>
+
+	<body>
+		<div class="login-hd">
+			<div class="left-bg"></div>
+			<div class="right-bg"></div>
+			<div class="hd-inner">
+				<span class="logo"></span>
+				<span class="split"></span>
+				<span class="sys-name">客户管理平台</span>
+			</div>
+		</div>
+		<div class="login-bd">
+			<div class="bd-inner">
+				<div class="inner-wrap">
+					<div class="lg-zone">
+						<div class="lg-box">
+							<div class="lg-label">
+								<h4>用户登录</h4></div>
+							<div class="alert alert-error" style="display: none;">
+								<i class="iconfont">&#xe62e;</i>
+								<span>请输入用户名</span>
+							</div>
+							<form>
+								<div class="lg-username input-item clearfix">
+									<i class="iconfont">&#xe60d;</i>
+									<input id="loginname" placeholder="账号/邮箱">
+								</div>
+								<div class="lg-password input-item clearfix">
+									<i class="iconfont">&#xe634;</i>
+									<input id="password" type="password" placeholder="请输入密码">
+								</div>
+								<div class="lg-check clearfix" style="display: none;">
+									<div class="input-item">
+										<i class="iconfont">&#xe633;</i>
+										<input type="text" placeholder="验证码">
+									</div>
+									<span class="check-code">XD34F</span>
+								</div>
+								<div class="tips clearfix">
+									<label><input id="rememberme" type="checkbox">记住我</label>
+								</div>
+								<div class="enter">
+									<a href="javascript:;" class="purchaser" onClick="login()">普通登录</a>
+									<a href="javascript:;" class="supplier" onClick="javascript:void(0)">管理员登录</a>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="lg-poster"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>
+<script type="text/javascript" src="jquery-easyui-1.7.0/jquery.min.js"></script>
+<script src="layer/layer.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+	$().ready(function() {
+		//输入框回车事件
+		$("input").keyup(function(event) {
+			if(event.keyCode == 13) {
+				login()
+			}
+		});
+	})
+
+	function login() {
+		var loginname = $('#loginname').val().trim();
+		var password = $('#password').val().trim();
+		var rememberme = $("#rememberme")[0].checked;
+		if(loginname === null || loginname === '') {
+			$(".alert-error>span").html('请输入用户名')
+			$(".alert-error").css("display", "block");
+			return;
+		} else if(password === null || password === '') {
+			$(".alert-error>span").html('请输入密码')
+			$(".alert-error").css("display", "block");
+			return;
+		} else {
+			$(".alert-error").css("display", "none");
+		}
+
+		var objs = {}; //声明一个对象
+		objs.loginname = loginname;
+		objs.password = password;
+		objs.rememberme = rememberme;
+		var layerLoadIndex;
+		$.ajax({
+			type: "post",
+			url: "http://127.0.0.1:8080/login",
+			xhrFields: {
+				withCredentials: true
+			},
+			async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+			contentType: 'application/json',
+			dataType: 'JSON',
+			data: JSON.stringify(objs),
+			beforeSend: function() {
+				layerLoadIndex = layer.load(
+					1, {
+						time: 10 * 1000
+					}); //风格1，并且设定最长等待10秒
+			},
+			success: function(obj) {
+				if(obj.status === 2000) { //登录成功
+					layer.msg(obj.desc, {
+						time: 1000
+					}, function() {
+						window.location.href = "index.html"
+					});
+
+				} else {
+					layer.msg(obj.desc, {
+						icon: 7,
+						anim: 6,
+						time: 3000
+					});
+				}
+			},
+			complete: function() {
+				layer.close(layerLoadIndex);
+			}
+		});
+	}
+</script>

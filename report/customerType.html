@@ -1,0 +1,89 @@
+<div style="margin-left: 20px;margin-top: 25px;">
+	<!--标题栏-->
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div id="level" style="width: 800px;height:420px;"></div>
+	<script type="text/javascript">
+		// 基于准备好的dom，初始化echarts实例
+		var cusType = echarts.init(document.getElementById('level'), null, {
+			renderer: 'svg'
+		});
+
+		function setTypeData(cusTypes, cusTypeData) {
+			cusType.setOption({ // 使用指定数据显示图表。
+
+				title: {
+					text: '客户分析构成图',
+					subtext: '数据分析',
+					x: 'center'
+				},
+
+				tooltip: {
+					trigger: 'item',
+					formatter: "{a} <br/>{b} : {c} ({d}%)"
+				},
+
+				legend: {
+					orient: 'vertical',
+					left: 'right',
+					data: cusTypes
+				},
+
+				series: [{
+					name: '客户类型',
+					type: 'pie', //bar,pie,line
+					radius: '55%',
+					center: ['50%', '60%'],
+					label: {
+						normal: {
+							show: true,
+							formatter: '{b}: {c}({d}%)'
+						}
+					},
+
+					data: cusTypeData
+				}],
+
+			});
+		}
+
+		function getTypeData(cusType) {
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID
+			$.ajax({
+				type: "post",
+				url: "http://127.0.0.1:8080/home/customerService/getCustomerType",
+				async: true,
+				contentType: 'application/json',
+				xhrFields: {
+					withCredentials: true
+				},
+				dataType: 'JSON',
+				data: JSON.stringify(obj),
+				success: function(obj) {
+					if(obj.status === 200) {
+						var cusTypes = [];
+						var cusTypeData = [];
+						var data = obj.data;
+						for(var i = 0; i < data.length; i++) {
+							cusTypes.push(data[i].cusLevel)
+							cusTypeData.push({
+								name: data[i].cusLevel,
+								value: data[i].number
+							})
+						}
+						setTypeData(cusTypes, cusTypeData);
+					} else { //无权限
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+					}
+
+				}
+			});
+		}
+
+		getTypeData(cusType);
+	</script>
+</div>

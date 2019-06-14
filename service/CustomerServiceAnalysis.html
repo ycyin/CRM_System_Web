@@ -1,0 +1,125 @@
+<div style="margin-left: 20px;margin-top: 25px;">
+	<div id="maincusserana" style="width:800px;height:420px;"></div>
+	<script>
+		var cusSerAna = echarts.init(document.getElementById('maincusserana'), null, {
+			renderer: 'svg'
+		});
+
+		function setPieData(cusSerAnas, cusSerAnaData) {
+			option = {
+				title: {
+					text: '客户服务分析',
+					subtext: '服务分析',
+					x: 'center'
+				},
+				tooltip: {
+					trigger: 'item',
+					formatter: "{a} <br/>{b} : {c} ({d}%)"
+				},
+				legend: {
+					orient: 'vertical',
+					left: 'right',
+					data: cusSerAnas
+				},
+				series: [{
+					name: '服务项目',
+					type: 'pie',
+					radius: '55%',
+					center: ['50%', '60%'],
+					label: {
+						normal: {
+							show: true,
+							formatter: '{b}: {c}({d}%)'
+						}
+					},
+					data: cusSerAnaData,
+
+					itemStyle: {
+						emphasis: {
+							shadowBlur: 10,
+							shadowOffsetX: 0,
+							shadowColor: 'rgba(0, 0, 0, 0.5)'
+						}
+					}
+
+				}]
+			};
+
+			cusSerAna.setOption(option);
+		}
+
+		//	function setPieData(cusSerAnas, cusSerAnaData) {
+		//	cusSerAna.setOption ( {
+		//		title: {
+		//			text: '客户服务分析',
+		//			subtext: '测试1.0',
+		//			x: 'center'
+		//		},
+		//		tooltip: {
+		//			trigger: 'item',
+		//			formatter: "{a} <br/>{b} : {c} ({d}%)"
+		//		},
+		//		legend: {
+		//			orient: 'vertical',
+		//			left: 'left',
+		//			data: cusSerAnas
+		//		},
+		//		series: [{
+		//			name: "123",
+		//			type: 'pie',
+		//			radius: '55%',
+		//			center: ['50%', '60%'],
+		//			data: cusSerAnaData,
+		//			itemStyle: {
+		//				emphasis: {
+		//					shadowBlur: 10,
+		//					shadowOffsetX: 0,
+		//					shadowColor: 'rgba(0, 0, 0, 0.5)'
+		//				}
+		//			}
+		//		}]
+		//	});
+		//}
+
+		function getSerAnaData() {
+			var obj = {}; //声明一个对象
+			obj.id = 10002; //后端要求每次请求传入一个ID
+			$.ajax({
+				type: "post",
+				url: "http://127.0.0.1:8080/home/serviceService/getCustomerServiceAnalysis",
+				async: true,
+				contentType: 'application/json',
+				dataType: 'JSON',
+				xhrFields: {
+					withCredentials: true
+				},
+				data: JSON.stringify(obj),
+				success: function(obj) {
+					if(obj.status === 200) {
+						var cusSerAnas = [];
+						var cusSerAnaData = [];
+						var data = obj.data;
+						for(var i = 0; i < data.length; i++) {
+							cusSerAnas.push(data[i].serAnaType)
+							//服务类型
+							cusSerAnaData.push({
+								name: data[i].serAnaType,
+								value: data[i].serAnaCount
+							})
+							//类型数量
+						}
+						setPieData(cusSerAnas, cusSerAnaData);
+					} else { //无权限
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+					}
+				}
+			});
+		}
+
+		getSerAnaData();
+	</script>
+</div>

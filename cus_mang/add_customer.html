@@ -1,0 +1,140 @@
+<!--
+        	作者：yinyicao@foxmail.com
+        	时间：2019-05-28
+        	描述：start-rating支持(本来打算用这个来实现评分，但是与easyui不兼容)
+        -->
+<!--<link href="bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+<link rel="stylesheet" href="css/font-awesome.min.css">
+<link href="start-rating/css/star-rating.css" media="all" rel="stylesheet" type="text/css" />
+<script src="start-rating/js/star-rating.js" type="text/javascript"></script>-->
+
+<div>
+	<!--<div class="easyui-panel" title="New Topic" style="width:400px">-->
+	<div style="padding:10px 60px 20px 60px;margin: auto;width: 480px;">
+		<form id="frmAddCust" method="post">
+			<table cellpadding="5">
+				<tr>
+					<td>客户编号:</td>
+					<td><input class="easyui-textbox" type="text" name="cusNo" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>客户名称:</td>
+					<td><input class="easyui-textbox" type="text" name="cusName" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>所属地区:</td>
+					<td>
+						<select class="easyui-combobox" name="cusRegion" data-options="width:173,required:true,panelHeight:180">
+							<option value=""></option>
+							<option value="东北">东北</option>
+							<option value="西北">西北</option>
+							<option value="西南">西南</option>
+							<option value="华南">华南</option>
+							<option value="华中">华中</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>客户地址:</td>
+					<td><input class="easyui-textbox" type="text" name="cusAddr" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>客户网址:</td>
+					<td><input class="easyui-textbox" type="text" name="cusUrl" data-options="required:true"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>客户级别:</td>
+					<td>
+						<select class="easyui-combobox" name="cusLevel" data-options="width:173,required:true,panelHeight:180">
+							<option value=""></option>
+							<option value="普通客户">普通客户</option>
+							<option value="大客户">大客户</option>
+							<option value="VIP客户">VIP客户</option>
+							<option value="合作伙伴">合作伙伴</option>
+							<option value="战略合作伙伴">战略合作伙伴</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>信用级别:</td>
+					<td>
+						<!--<select class="easyui-combobox" name="cusCredit" data-options="width:100,required:true">
+							<option value=""></option>
+							<option value="一级">一级</option>
+							<option value="二级">二级</option>
+							<option value="三级">三级</option>
+							<option value="四级">四级</option>
+							<option value="五级">五级</option>
+						</select>-->
+						<!--<input id="start-rating" name="cusCredit" value="3" class="rating" data-size="sm">-->
+						<div id="star"></div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitAddCus()">新增</a>
+					</td>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearSubmitAddCus()">取消</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+	<!--</div>-->
+	<script type="text/javascript">
+		$('#star').raty({ //评分插件
+			score: 3,
+			size: 30,
+			path: 'raty/img',
+			cancel: true,
+			cancelPlace: 'right'
+		});
+
+		function submitAddCus() {
+			var isValid = $('#frmAddCust').form('validate');
+			var fields = $('#frmAddCust').serializeArray();
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID
+			$.each(fields, function(index, field) {
+				obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+			})
+
+			if(isValid) {
+				$.ajax({
+					type: "post",
+					url: "http://127.0.0.1:8080/home/customerService/addCustomer",
+					async: true,
+					xhrFields: {
+						withCredentials: true
+					},
+					contentType: 'application/json',
+					dataType: 'JSON',
+					//					data:$('#ff').serialize(),//这两种方式都不能直接将表单数据转换为json格式
+					//					data:$('#ff').serializeArray(),
+					data: JSON.stringify(obj),
+					success: function(obj) {
+						if(obj.status === 200) {
+							layer.msg('添加成功！');
+						} else {
+							layer.msg(obj.desc, {
+								icon: 7,
+								anim: 6,
+								time: 3000
+							});
+						}
+
+					}
+				});
+			}
+		}
+
+		function clearSubmitAddCus() {
+			$('#frmAddCust')[0].reset(); //清除form表单的输入内容
+		}
+	</script>
+</div>

@@ -1,0 +1,490 @@
+<div>
+	<!--
+    	作者：yinyicao@foxmail.com
+    	时间：2019-05-31
+    	描述：【客户信息数据表格】
+    -->
+	<table id="TabDg_cus" class="easyui-datagrid" style="width:100%;height: 525px;"></table>
+
+	<!--
+    	作者：yinyicao@foxmail.com
+    	时间：2019-05-31
+    	描述：【修改客户信息窗口】,easyui-window里面的内容和它本身的属性都必须使用统一的方式，要么都用js要么都用html
+    -->
+	<div id="modifyCus" class="easyui-window" title="修改客户" style="width:600px;height:450px" data-options="iconCls:'icon-edit',modal:true,closed:true">
+		<div style="padding:10px 60px 20px 60px;margin: auto;width: 480px;">
+			<form id="frmCus" method="post">
+				<table cellpadding="5">
+					<tr>
+						<td>客户编号:</td>
+						<!--修改时需要主键ID，所以用隐藏的input框来提交cusId-->
+						<input type="hidden" name="cusId" />
+						<td><input class="easyui-textbox" type="text" name="cusNo" data-options="required:true"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>客户名称:</td>
+						<td><input class="easyui-textbox" type="text" name="cusName" data-options="required:true"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>所属地区:</td>
+						<td>
+							<select class="easyui-combobox" name="cusRegion" data-options="width:173,required:true,panelHeight:180">
+								<option value=""></option>
+								<option value="东北">东北</option>
+								<option value="西北">西北</option>
+								<option value="西南">西南</option>
+								<option value="华南">华南</option>
+								<option value="华中">华中</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>客户地址:</td>
+						<td><input class="easyui-textbox" type="text" name="cusAddr" data-options="required:true"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>客户网址:</td>
+						<td><input class="easyui-textbox" type="text" name="cusUrl" data-options="required:true"></input>
+						</td>
+					</tr>
+					<tr>
+						<td>客户级别:</td>
+						<td>
+							<select class="easyui-combobox" name="cusLevel" data-options="width:173,required:true,panelHeight:180">
+								<option value=""></option>
+								<option value="普通客户">普通客户</option>
+								<option value="大客户">大客户</option>
+								<option value="VIP客户">VIP客户</option>
+								<option value="合作伙伴">合作伙伴</option>
+								<option value="战略合作伙伴">战略合作伙伴</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>信用级别:</td>
+						<td>
+							<div id="star1"></div>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<a href="javascript:void(0)" class="easyui-linkbutton" onclick="updateCustomer()">修改</a>
+						</td>
+						<td>
+							<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearCustomer()">取消</a>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+
+	<!--
+		作者：yinyicao@foxmail.com
+		时间：2019-06-05
+		描述：【查看联系人窗口】
+	-->
+	<div id="searchContact" class="easyui-window" style="width:700px;height:450px" data-options="iconCls:'icon-man',modal:true,closed:true">
+		<table id="TabDg_cont" class="easyui-datagrid" style="width:100%;height: 525px;"></table>
+	</div>
+
+	<script type="text/javascript">
+		//TabDg_cont初始化（查看联系人弹出的表格）
+		function InitContactTable(respData) {
+			$('#TabDg_cont').datagrid({ //表格的初始化
+				data: respData, //初始化为空，请求成功后数据加载（这里使用ajax加载数据）
+				striped: true, //行条纹化，即奇偶行使用不同背景色
+				rownumbers: true,
+				fitColumns: true,
+				singleSelect: true,
+				toolbar: [{
+					iconCls: 'icon-clear',
+					text: '刪除',
+					handler: function() {
+						var selectData = $('#TabDg_cont').datagrid('getChecked');
+						var checkLen = selectData.length;
+						if(checkLen > 0) {
+							$.messager.confirm('Confirm', '确定要删除选中的' + checkLen + '条数据吗?', function(r) {
+								if(r) {
+									var obj = {}; //声明一个对象
+									obj.id = 10001; //后端要求每次请求传入一个ID
+									obj.data = selectData;
+									$.ajax({
+										type: "post",
+										url: "http://127.0.0.1:8080/home/contactService/deleteContact",
+										async: true,
+										contentType: 'application/json',
+										dataType: 'JSON',
+										xhrFields: {
+											withCredentials: true
+										},
+										data: JSON.stringify(obj),
+										success: function(obj) {
+											if(obj.status === 200) {
+												if(obj.data >= 1) {
+													MsgWithIcon(obj.desc + ",共删除" + obj.data + "个联系人！", 1);
+													$('#searchContact').window('close'); // 直接关闭查看联系人window窗口
+												} else {
+													MsgWithIcon(obj.desc, 2);
+												}
+											} else { //无权限
+												layer.msg(obj.desc, {
+													icon: 7,
+													anim: 6,
+													time: 3000
+												});
+												success(null); //调用这个方法就刷新表格数据
+											}
+
+										}
+									});
+								}
+							});
+
+						} else {
+							$.messager.alert('删除提示', '请选择要删除的行！');
+						}
+					}
+				}],
+				columns: [
+					[
+
+						{
+							field: 'ctName',
+							title: '姓名',
+							width: 30,
+							align: 'center'
+						},
+						{
+							field: 'ctGender',
+							title: '性别',
+							width: 15,
+							align: 'center'
+						},
+						{
+							field: 'ctPhone',
+							title: '电话',
+							width: 50,
+							align: 'center'
+						},
+						{
+							field: 'ctTitle',
+							title: '职位',
+							width: 20,
+							align: 'center'
+						},
+						{
+							field: 'ctMemo',
+							title: '备注',
+							width: 125,
+							align: 'center'
+						}
+					]
+				]
+			});
+		}
+
+		function updateCustomer() {
+			var isValid = $('#frmCus').form('validate');
+			var fields = $('#frmCus').serializeArray();
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID
+			$.each(fields, function(index, field) {
+				obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+			})
+
+			if(isValid) {
+				$.ajax({
+					type: "post",
+					url: "http://127.0.0.1:8080/home/customerService/updateCustomer",
+					async: true,
+					contentType: 'application/json',
+					dataType: 'JSON',
+					xhrFields: {
+						withCredentials: true
+					},
+					data: JSON.stringify(obj),
+					success: function(obj) {
+						if(obj.status === 200) {
+							if(obj.data >= 1) { //更新成功，返回的obj.data是更新的条数
+								MsgWithIcon(obj.desc, 1);
+								$('#TabDg_cus').datagrid('reload'); //刷新表格
+							} else {
+								MsgWithIcon(obj.desc, 2);
+							}
+						} else { //无权限
+							layer.msg(obj.desc, {
+								icon: 7,
+								anim: 6,
+								time: 3000
+							});
+						}
+
+						$('#modifyCus').window('close'); // 关闭window窗口
+					}
+				});
+			}
+		}
+
+		function clearCustomer() {
+			$('#frmCus')[0].reset();
+		}
+
+		var InitCustomerTableLoader = function(param, success, error) {
+			var objs = {}; //声明一个对象
+			objs.id = 10001; //后端要求每次请求传入一个ID
+
+			//			var datas = [];
+			//			var obj = {}; //声明一个对象
+			//			obj.page = param.page;
+			//			obj.size = param.rows;
+			//			datas.push(obj)
+			//			objs.data = datas; //data是一个数组（集合）哦
+			objs.page = param.page;
+			objs.size = param.rows;
+
+			$.ajax({
+				type: "post",
+				//				url: "http://127.0.0.1:8080/home/customerService/getAllCustomer",
+				url: "http://127.0.0.1:8080/home/customerService/getAllCustomerWithPage",
+				xhrFields: {
+					withCredentials: true
+				},
+				async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+				contentType: 'application/json',
+				dataType: 'JSON',
+				data: JSON.stringify(objs),
+				success: function(obj) {
+					if(obj.status === 200) {
+						success(obj.data); //调用这个方法就刷新表格数据
+					} else {
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+						success(null); //调用这个方法就刷新表格数据
+					}
+
+				}
+			});
+		}
+
+		$('#TabDg_cus').datagrid({ //表格的初始化
+			data: '', //初始化为空，请求成功后数据加载（这里使用ajax加载数据）
+			loader: InitCustomerTableLoader,
+			striped: true, //行条纹化，即奇偶行使用不同背景色
+			pagination: true, //分页工具栏
+			pageSize: 15, //当设置了 pagination 属性时，初始化页面尺寸。
+			pageList: [15, 30, 45, 60], //当设置了 pagination 属性时，初始化页面尺寸的选择列表
+			rownumbers: true,
+			fitColumns: true,
+			singleSelect: false,
+			toolbar: [{
+				iconCls: 'icon-edit',
+				text: '编辑',
+				handler: function() {
+					var selectData = $('#TabDg_cus').datagrid('getChecked');
+					//var row = $('#TabDg_cus').datagrid('getSelected');//可以用getSelected直接取到行数据也可以getChecked然后取selectData[0]
+					var checkLen = selectData.length;
+					if(checkLen === 0) {
+						SimpleMsg('请选择要编辑的行！');
+					} else if(checkLen > 1) {
+						MsgWithIcon_Anim('每一次只能编辑一行~', 4, 6);
+					} else {
+						$('#star1').raty({ //评分插件初始化,需要在这里初始化，否则评分插件的值不能正常显示
+							score: selectData[0].score,
+							size: 30,
+							path: 'raty/img',
+							cancel: true,
+							cancelPlace: 'right'
+						});
+
+						$('#frmCus').form('load', selectData[0]); //加载选中行的数据到表单标签
+						$('#modifyCus').window('open'); // 打开window窗口
+					}
+				}
+			}, '-', {
+				iconCls: 'icon-clear',
+				text: '删除',
+				handler: function() {
+					var selectData = $('#TabDg_cus').datagrid('getChecked');
+					var checkLen = selectData.length;
+					if(checkLen > 0) {
+						layer.confirm('确定要删除选中的' + checkLen + '条数据吗?', {
+							icon: 3,
+							title: '提示'
+						}, function(index) {
+							var obj = {}; //声明一个对象
+							obj.id = 10001; //后端要求每次请求传入一个ID
+							obj.data = selectData;
+							$.ajax({
+								type: "post",
+								url: "http://127.0.0.1:8080/home/customerService/deleteCustomer",
+								async: true,
+								contentType: 'application/json',
+								dataType: 'JSON',
+								xhrFields: {
+									withCredentials: true
+								},
+								data: JSON.stringify(obj),
+								success: function(obj) {
+									$('#searchContact').window('close'); // 关闭window窗口
+									if(obj.status === 200) {
+										if(obj.data != null) { //删除成功，返回的是删除的记录数
+											layer.msg(obj.desc + ",共删除" + obj.data + "条数据！", {
+												titile: '删除提示',
+												icon: 1,
+												time: 2000 //2秒关闭（如果不配置，默认是3秒）
+											});
+											$('#TabDg_cus').datagrid('reload'); //刷新表格
+										} else {
+											layer.msg(obj.desc, {
+												titile: '删除提示',
+												icon: 5,
+												time: 3000,
+												anim: 6
+											});
+										}
+									} else {
+										layer.msg(obj.desc, {
+											icon: 7,
+											anim: 6,
+											time: 3000
+										});
+									}
+
+								}
+							});
+
+							layer.close(index);
+						});
+
+					} else {
+						layer.msg('请选择要删除的行！');
+					}
+
+				}
+			}, '-', {
+				iconCls: 'icon-man',
+				text: '查看联系人',
+				handler: function() {
+					var selectData = $('#TabDg_cus').datagrid('getChecked');
+					//					var row = $('#TabDg_cus').datagrid('getSelected');//可以用getSelected直接取到行数据也可以getChecked然后取selectData[0]
+					var checkLen = selectData.length;
+					if(checkLen === 0) {
+						$.messager.alert('查询联系人提示', '请选择要查询的客户！');
+					} else if(checkLen > 1) {
+						$.messager.alert('查询联系人提示', '每一次只能查询一个客户的联系人哦！');
+					} else {
+						var data = {}; //声明一个对象
+						data.id = 10001; //后端要求每次请求传入一个ID
+						data.data = selectData;
+
+						$.ajax({
+							type: "post",
+							url: "http://127.0.0.1:8080/home/contactService/getContactByCusNo",
+							async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+							contentType: 'application/json',
+							dataType: 'JSON',
+							xhrFields: {
+								withCredentials: true
+							},
+							data: JSON.stringify(data),
+							success: function(obj) {
+								if(obj.status === 200) {
+									if(obj.data.length === 0) {
+										$.messager.confirm('查询提示', '【' + data.data[0].cusName + '】下无客户联系人！是否去添加？',
+											function(r) {
+												if(r) {
+													var tab = $('#tt').tabs('getTab', '新增客户联系人');
+													if(tab == null) {
+														$('#tt').tabs('add', {
+															title: '新增客户联系人',
+															href: 'cus_mang/add_contact.html',
+															closable: true
+														});
+													} else {
+														$('#tt').tabs('select', '新增客户联系人');
+													}
+												}
+											});
+									} else {
+										$('#searchContact').panel({
+											title: '客户联系人☞【' + data.data[0].cusName + '】',
+										});
+										InitContactTable(obj.data);
+										$('#searchContact').window('open'); // 打开window窗口
+									}
+								} else { //无权限
+									layer.msg(obj.desc, {
+										icon: 7,
+										anim: 6,
+										time: 3000
+									});
+								}
+
+							}
+						});
+					}
+				}
+			}],
+			columns: [
+				[{
+						field: '',
+						title: '',
+						width: 100,
+						align: 'center',
+						checkbox: true //一般要同时设置singleSelect：false
+					},
+
+					{
+						field: 'cusNo',
+						title: '客户编号',
+						width: 80,
+						align: 'center'
+					},
+					{
+						field: 'cusName',
+						title: '客户名称',
+						width: 101,
+						align: 'center'
+					},
+					{
+						field: 'cusRegion',
+						title: '所属地区',
+						width: 101,
+						align: 'center'
+					},
+					{
+						field: 'cusAddr',
+						title: '客户地址',
+						width: 120,
+						align: 'center'
+					},
+					{
+						field: 'cusUrl',
+						title: '客户网址',
+						width: 120,
+						align: 'center'
+					},
+					{
+						field: 'cusLevel',
+						title: '客户级别',
+						width: 101,
+						align: 'center'
+					},
+					{
+						field: 'score',
+						title: '信用级别',
+						width: 101,
+						align: 'center'
+					}
+				]
+			]
+		});
+	</script>
+</div>

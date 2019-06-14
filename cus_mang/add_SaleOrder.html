@@ -1,0 +1,173 @@
+<div>
+
+	<div style="padding:10px 60px 20px 60px;margin: auto;width: 480px;">
+		<form id="frmAddSale" method="post">
+			<table cellpadding="5">
+				<tr>
+					<td>订单编号:</td>
+					<td>
+						<input class="easyui-textbox" type="text" name="saleNo" data-options="required:true,width:173"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>产品名称:</td>
+					<td><input class="easyui-textbox" type="text" name="proName" data-options="required:true,width:173"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>客户名称:</td>
+					<td>
+						<!--<select class="easyui-combobox" name="cusNo" data-options="width:173,required:true,panelHeight:180,
+							url:'http://localhost:8080/home/customerService/getCusNo',valueField:'cusNo',textField:'cusName'" >						
+							<option value=""></option>							
+						</select>-->
+						<select id="cusNo" class="easyui-combobox" name="cusNo" data-options="required:true,width:173,panelHeight:250">
+							<option value=""></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>产品单价:</td>
+					<td id="price1">
+						<input id="price" class="easyui-textbox" type="text" name="proPrice" data-options="required:true,width:173"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>产品数量:</td>
+					<td>
+						<input id="number" class="easyui-textbox" type="text" name="proNum" data-options="required:true,width:173"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>产品总价:</td>
+					<td>
+						<input id="total" class="easyui-textbox" type="text" name="proTotal" data-options="required:true,width:173"></input>
+					</td>
+				</tr>
+				<tr>
+					<td>提交日期:</td>
+					<td>
+						<input id="dd" type="text" class="easyui-datebox" name="proDate" data-options="required:true,width:173">
+						<!--<input class="easyui-textbox" type="text" name="proDate" data-options="required:true"></input>-->
+						<div id="star"></div>
+					</td>
+				</tr>
+				<tr>
+					<td>交货状态:</td>
+					<td>
+						<select id="cusNo" class="easyui-combobox" name="proState" data-options="required:true,width:173,panelHeight:250">
+							<option value=""></option>
+							<option value="未交货">未交货</option>
+							<option value="已交货">已交货</option>							
+						</select>						
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitAddSale()">新增</a>
+					</td>
+					<td>
+						<a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearSubmitAddSale()">取消</a>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		//		$().ready(function() {
+		//
+		//			$('#price').textbox({
+		//				onChange:function(new1,old){
+		//					alert("新值："+new1+"--旧："+old)
+		//				}
+		//			})
+		//		})
+
+		//		function sum(obj) {
+		//			 var a = document.getElementById("price");
+		//			 var b = document.getElementById("number");
+		//			 var sum= a.value * b.value;			
+		//			document.getElementById('total').innerText=parseInt(sum);
+		//			receipts.value=parseInt(sum);
+		//			}
+
+		$('#dd').datebox({
+			required: true
+		});
+
+		function submitAddSale() {
+			var isValid = $('#frmAddSale').form('validate');
+			var fields = $('#frmAddSale').serializeArray();
+
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID
+			$.each(fields, function(index, field) {
+				obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+			})
+
+			if(isValid) {
+				$.ajax({
+					type: "post",
+					url: "http://127.0.0.1:8080/home/saleorderService/addSaleOrder",
+					async: true,
+					contentType: 'application/json',
+					xhrFields: {
+						withCredentials: true
+					},
+					dataType: 'JSON',
+					data: JSON.stringify(obj),
+					success: function(obj) {
+						if(obj.status === 200) {
+							layer.msg('添加成功！');
+						} else { //无权限
+							layer.msg(obj.desc, {
+								icon: 7,
+								anim: 6,
+								time: 3000
+							});
+						}
+					}
+				});
+			}
+		}
+
+		function clearSubmitAddSale() {
+			$('#frmAddSale')[0].reset(); //清除form表单的输入内容
+		}
+
+		var getCusNoLoader = function(param, success, error) {
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID	
+			$.ajax({
+				type: "post",
+				url: "http://127.0.0.1:8080/home/customerService/getCusNo",
+				async: true, //如果是在ajax方法外加载表格数据，必须【同步】方式提交
+				contentType: 'application/json',
+				dataType: 'JSON',
+				xhrFields: {
+					withCredentials: true
+				},
+				data: JSON.stringify(obj),
+				success: function(obj) {
+					if(obj.status === 200) {
+						success(obj.data); //调用这个方法就刷新表格数据
+					} else { //无权限
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+						success(null); //调用这个方法就刷新表格数据
+					}
+				}
+			});
+		}
+
+		$('#cusNo').combobox({
+			valueField: 'cusNo',
+			textField: 'cusName',
+			loader: getCusNoLoader //从远程服务器加载数据
+		});
+	</script>
+</div>

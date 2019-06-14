@@ -1,0 +1,76 @@
+<div style="margin-left: 20px;margin-top: 25px;">
+	<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+	<div id="main" style="width: 800px;height:420px;"></div>
+	<script type="text/javascript">
+		// 基于准备好的dom，初始化echarts实例
+		var cusRegion = echarts.init(document.getElementById('main'), null, {
+			renderer: 'svg'
+		});
+
+		function setEchartsData(cusRegions, cusRegionData) {
+			cusRegion.setOption({ // 使用指定数据显示图表。
+
+				title: {
+					text: '客户区域分布图',
+					textStyle: {
+						color: '#000'
+					}
+				},
+				color: ['#BEE7E9'],
+				tooltip: {},
+				legend: {
+					data: ['客户数量']
+				},
+				xAxis: {
+					data: cusRegions
+				},
+				yAxis: {
+
+				},
+				series: [{
+					name: '客户数量',
+					type: 'bar', //bar,pie,line
+					data: cusRegionData
+				}]
+
+			});
+		}
+
+		function getData(cusRegion) {
+			var obj = {}; //声明一个对象
+			obj.id = 10001; //后端要求每次请求传入一个ID
+			$.ajax({
+				type: "post",
+				url: "http://127.0.0.1:8080/home/customerService/getCustomerRegion",
+				xhrFields: {
+					withCredentials: true
+				},
+				async: true,
+				contentType: 'application/json',
+				dataType: 'JSON',
+				data: JSON.stringify(obj),
+				success: function(obj) {
+					if(obj.status === 200) {
+						var cusRegions = [];
+						var cusRegionData = [];
+						var data = obj.data;
+						for(var i = 0; i < data.length; i++) {
+							cusRegions.push(data[i].cusRegion)
+							cusRegionData.push(data[i].number)
+						}
+						setEchartsData(cusRegions, cusRegionData);
+					} else { //无权限
+						layer.msg(obj.desc, {
+							icon: 7,
+							anim: 6,
+							time: 3000
+						});
+					}
+
+				}
+			});
+		}
+
+		getData(cusRegion);
+	</script>
+</div>
